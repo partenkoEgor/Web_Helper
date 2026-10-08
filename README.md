@@ -42,6 +42,24 @@ Tampermonkey-скрипт, который убирает рутину при р�
 
 Картинка остаётся чёткой при увеличении: скрипт меняет размер в вёрстке, а не растягивает готовый растр через `transform: scale`. PDF открываются с `isEvalSupported: false`, это закрывает уязвимость CVE-2024-4367.
 
+<details>
+<summary>📸 Скриншоты (3)</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/file-preview-popup.png" alt="Превью картинки при наведении на ссылку" width="760"><br>
+  <sub>Превью картинки при наведении на ссылку</sub>
+</p>
+<p align="center">
+  <img src="docs/screenshots/file-preview-pdf.png" alt="Превью первой страницы PDF" width="760"><br>
+  <sub>Превью первой страницы PDF</sub>
+</p>
+<p align="center">
+  <img src="docs/screenshots/file-preview-fullscreen.png" alt="Полноэкранный просмотр с поворотом и масштабом" width="760"><br>
+  <sub>Полноэкранный просмотр с поворотом и масштабом</sub>
+</p>
+</details>
+
 ### Предыдущий статус и кто в работе
 
 Наводишь курсор на ячейку **External Status**:
@@ -51,27 +69,95 @@ Tampermonkey-скрипт, который убирает рутину при р�
 
 История запрашивается тем же запросом, что окно «История тикета», и запоминается на минуту.
 
+<details>
+<summary>📸 Скриншоты (2)</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/prev-status.png" alt="Статус до закрытия у тикета Closed" width="760"><br>
+  <sub>Статус до закрытия у тикета Closed</sub>
+</p>
+<p align="center">
+  <img src="docs/screenshots/in-work.png" alt="Кто взял в работу тикет In progress" width="760"><br>
+  <sub>Кто взял в работу тикет In progress</sub>
+</p>
+</details>
+
 ### Автоподстановка Reddy ID
 
 В окне **Export to Reddy** поле Reddy ID заполняется вашим ID автоматически. ID скрипт сам находит в разметке страницы и запоминает. Поле заполняется, только если оно пустое, а отправляете вы сами. Задать или сбросить ID вручную можно через меню Tampermonkey → **Web Helper: мой Reddy ID**.
+
+<details>
+<summary>📸 Скриншот</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/reddy-id.png" alt="Reddy ID уже заполнен в окне Export to Reddy" width="760"><br>
+  <sub>Reddy ID уже заполнен в окне Export to Reddy</sub>
+</p>
+</details>
 
 ### Автоподстановка дат
 
 После **Apply** в модалке фильтров диапазон дат заполняется значением «примерно год назад → сегодня», например `14.08.2025 00:00 ~ 13.08.2026 23:59`.
 
+<details>
+<summary>📸 Скриншот</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/date-range.png" alt="Диапазон дат после Apply" width="760"><br>
+  <sub>Диапазон дат после Apply</sub>
+</p>
+</details>
+
 ### Кнопки вместо ссылок на файлы
 
 Длинные ссылки вида `WebUserDocuments/889142155/Consultant/a32456d4….jpg` в колонках **User files**, **Agent's files**, **Support team's files** и **Internal files** превращаются в компактные кнопки `1. Скрин`, `2. PDF`, `3. Видео`. Цвет кнопки зависит от типа файла: картинки бирюзовые, PDF оранжевые, видео фиолетовые, всё остальное красное. Превью при наведении работает и на кнопках.
 
+<details>
+<summary>📸 Скриншот</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/file-buttons.png" alt="Цветные кнопки вместо длинных ссылок" width="760"><br>
+  <sub>Цветные кнопки вместо длинных ссылок</sub>
+</p>
+</details>
+
 ### Копирование ячейки по клику
 
 Клик по любой ячейке с обычным текстом копирует её значение в буфер обмена, и ячейка на мгновение подсвечивается зелёным. Двойной клик и выделение мышью работают как обычно и копирование не запускают.
+
+<details>
+<summary>📸 Скриншот</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/cell-copy.png" alt="Ячейка подсвечивается после копирования" width="760"><br>
+  <sub>Ячейка подсвечивается после копирования</sub>
+</p>
+</details>
 
 ### Обмен сохранёнными фильтрами
 
 Рядом с кнопкой **Saved filters** появляется кнопка «поделиться». Отмечаете свои фильтры и копируете код вида `TH-FILTERS:z:H4sIAAAA…`. Коллега вставляет этот код у себя, и фильтры вместе с набором колонок добавляются в его «Saved filters». Существующие фильтры не затираются: если имя занято, к нему добавляется номер.
 
 Фильтры читаются и сохраняются теми же запросами, что использует сам сайт (`/admin/filter/get`, `/admin/filter/save`).
+
+<details>
+<summary>📸 Скриншоты (2)</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/filter-share.png" alt="Вкладка «Поделиться»: выбор фильтров и код" width="760"><br>
+  <sub>Вкладка «Поделиться»: выбор фильтров и код</sub>
+</p>
+<p align="center">
+  <img src="docs/screenshots/filter-import.png" alt="Вкладка «Добавить по коду»" width="760"><br>
+  <sub>Вкладка «Добавить по коду»</sub>
+</p>
+</details>
 
 ### Автозакрытие попапов «OK»
 
@@ -88,11 +174,31 @@ Tampermonkey-скрипт, который убирает рутину при р�
 [AutoClose] Закрыл попап: title "...", содержимое "OK!", кнопка "OK"
 ```
 
+<details>
+<summary>📸 Скриншот</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/auto-close-console.png" alt="Запись об автозакрытии в консоли" width="760"><br>
+  <sub>Запись об автозакрытии в консоли</sub>
+</p>
+</details>
+
 ## Панель настроек
 
 Круглая кнопка **⚙** в левом нижнем углу страницы тикетов открывает панель с тумблером для каждой функции. Та же панель доступна на любой странице через меню Tampermonkey → **Web Helper: Настройки**. Выбор сохраняется в Tampermonkey, переживает обновления скрипта и действует сразу на всех трёх доменах. Изменения вступают в силу после обновления страницы, и панель предлагает сделать это одной кнопкой.
 
 Значения по умолчанию и параметры каждой функции лежат в блоке `CONFIG` в начале скрипта.
+
+<details>
+<summary>📸 Скриншот</summary>
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/settings-panel.png" alt="Панель с тумблером для каждой функции" width="760"><br>
+  <sub>Панель с тумблером для каждой функции</sub>
+</p>
+</details>
 
 ## Разрешения
 

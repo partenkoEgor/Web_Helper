@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Web Helper
 // @namespace    web-helper
-// @version      1.2.1
+// @version      1.3.0
 // @description  Помощник для работы с платёжными тикетами в TH Management: превью картинок во вложениях с полноэкранным просмотром, подсказка на статусе (предыдущий статус и кто в работе), автоподстановка Reddy ID и диапазона дат, компактные кнопки вместо ссылок на файлы, копирование ячейки по клику, обмен сохранёнными фильтрами и автозакрытие штатных попапов «OK». Каждую функцию можно выключить в панели настроек.
 // @author       partenkoEgor
 // @homepageURL  https://github.com/partenkoEgor/Web_Helper
@@ -112,13 +112,7 @@
 
     // ── Автоподстановка дат ──────────────────────────────────────────
     autoDateRange: {
-      // Насколько назад отсчитывать начало диапазона
-      yearsBack: 1,
-      // Случайный сдвиг даты «от» вперёд от точки «год назад», в днях
-      // [мин, макс] включительно. Минимум 1 — чтобы не выйти за годовое
-      // окно и чтобы дата не была ровно «год назад» каждый раз.
-      shiftDays: [1, 30],
-      // Время начала и конца диапазона [часы, минуты]
+      // Диапазон — сегодняшний день. Время начала и конца [часы, минуты]
       startTime: [0, 0],
       endTime: [23, 59],
       // Иконка кнопки «Saved filters». Даты подставляются только после
@@ -1164,23 +1158,13 @@
       return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
-    // «Примерно год назад → сегодня». Дата «от» — точка «год назад» плюс
-    // случайный сдвиг вперёд из CFG.shiftDays; новый сдвиг на каждое
-    // нажатие Apply. Минимальный сдвиг в 1 день заодно гарантирует, что
-    // диапазон не выйдет за годовое окно.
+    // Сегодняшний день: с CFG.startTime до CFG.endTime
     function getDateRange() {
-      const now = new Date();
-
-      const end = new Date(now);
-      end.setHours(CFG.endTime[0], CFG.endTime[1], 0, 0);
-
-      const [minShift, maxShift] = CFG.shiftDays;
-      const shift = minShift + Math.floor(Math.random() * (maxShift - minShift + 1));
-
-      const start = new Date(now);
-      start.setFullYear(start.getFullYear() - CFG.yearsBack);
-      start.setDate(start.getDate() + shift);
+      const start = new Date();
       start.setHours(CFG.startTime[0], CFG.startTime[1], 0, 0);
+
+      const end = new Date();
+      end.setHours(CFG.endTime[0], CFG.endTime[1], 0, 0);
 
       return `${fmt(start)} ~ ${fmt(end)}`;
     }

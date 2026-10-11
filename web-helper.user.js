@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Web Helper
 // @namespace    web-helper
-// @version      1.2.0
+// @version      1.2.1
 // @description  Помощник для работы с платёжными тикетами в TH Management: превью картинок во вложениях с полноэкранным просмотром, подсказка на статусе (предыдущий статус и кто в работе), автоподстановка Reddy ID и диапазона дат, компактные кнопки вместо ссылок на файлы, копирование ячейки по клику, обмен сохранёнными фильтрами и автозакрытие штатных попапов «OK». Каждую функцию можно выключить в панели настроек.
 // @author       partenkoEgor
 // @homepageURL  https://github.com/partenkoEgor/Web_Helper
@@ -121,6 +121,12 @@
       // Время начала и конца диапазона [часы, минуты]
       startTime: [0, 0],
       endTime: [23, 59],
+      // Иконка кнопки «Saved filters». Даты подставляются только после
+      // Apply в окне, которое открылось по этой кнопке, — Apply в основной
+      // панели фильтров и в других окнах их не трогает
+      savedFiltersIcon: '.fa-sliders-h',
+      // Сколько ждать появления окна сохранённых фильтров после клика (мс)
+      modalWaitTimeout: 3000,
       // Пауза после нажатия Apply, прежде чем искать поле даты (мс)
       applyDelay: 300,
       // Сколько ещё пытаться, если поле не появилось сразу
@@ -1203,21 +1209,76 @@
       return true;
     }
 
-    // Кнопка Apply в модалке сохранённых фильтров
     function isApplyButton(el) {
       if (!el) return false;
       const isSuccess = el.classList.contains('btn-success');
       const isSubmit = el.type === 'submit';
       const textMatch = el.textContent.trim() === 'Apply';
-      const inModal = !!el.closest('.modal_content, .wrap-white');
-      return isSuccess && (isSubmit || textMatch) && inModal;
+      return isSuccess && (isSubmit || textMatch);
+    }
+
+    // ── Окно сохранённых фильтров ─────────────────────────────────────
+    //
+    // Зелёная кнопка Apply есть и в основной панели фильтров, и в окне
+    // «Saved filters». Даты нужны только во втором случае, поэтому
+    // запоминаем окно, которое открылось после клика по «Saved filters»,
+    // и реагируем только на Apply внутри него.
+
+    function isSavedFiltersButton(btn) {
+      return !!btn
+        && !!btn.querySelector(CFG.savedFiltersIcon)
+        && !btn.closest('.modal_wrap, .modal_content, #th-fs-overlay');
+    }
+
+    function visibleModals() {
+      return Array.from(document.querySelectorAll('.modal_wrap, .modal_content'))
+        .filter(el => el.getClientRects().length > 0);
+    }
+
+    let savedFiltersModal = null;
+    let waitTimer = null;
+
+    // Окно может создаваться заново или показываться уже существующим
+    // (скрытым) элементом — в обоих случаях оно новое среди видимых
+    function watchForSavedFiltersModal() {
+      const before = new Set(visibleModals());
+      const started = Date.now();
+      savedFiltersModal = null;
+      clearInterval(waitTimer);
+      waitTimer = setInterval(() => {
+        const fresh = visibleModals().find(el => !before.has(el));
+        if (fresh) {
+          savedFiltersModal = fresh;
+          clearInterval(waitTimer);
+          log('Открыто окно сохранённых фильтров');
+        } else if (Date.now() - started > CFG.modalWaitTimeout) {
+          clearInterval(waitTimer);
+        }
+      }, 50);
+    }
+
+    function isInSavedFiltersModal(btn) {
+      const modal = savedFiltersModal;
+      return !!modal && modal.isConnected && modal.getClientRects().length > 0 && modal.contains(btn);
     }
 
     document.addEventListener('click', e => {
       const btn = e.target instanceof Element ? e.target.closest('button') : null;
-      if (!isApplyButton(btn)) return;
+      if (!btn) return;
 
-      log('Нажат Apply — ждём перерисовку фильтров');
+      if (isSavedFiltersButton(btn)) {
+        watchForSavedFiltersModal();
+        return;
+      }
+
+      if (!isApplyButton(btn)) return;
+      if (!isInSavedFiltersModal(btn)) {
+        log('Apply не в окне сохранённых фильтров — даты не трогаем');
+        return;
+      }
+      savedFiltersModal = null;
+
+      log('Нажат Apply в окне сохранённых фильтров — ждём перерисовку фильтров');
 
       setTimeout(() => {
         if (trySetDate()) return;

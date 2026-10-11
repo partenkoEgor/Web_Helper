@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Web Helper
 // @namespace    web-helper
-// @version      1.1.0
+// @version      1.2.0
 // @description  Помощник для работы с платёжными тикетами в TH Management: превью картинок во вложениях с полноэкранным просмотром, подсказка на статусе (предыдущий статус и кто в работе), автоподстановка Reddy ID и диапазона дат, компактные кнопки вместо ссылок на файлы, копирование ячейки по клику, обмен сохранёнными фильтрами и автозакрытие штатных попапов «OK». Каждую функцию можно выключить в панели настроек.
 // @author       partenkoEgor
 // @homepageURL  https://github.com/partenkoEgor/Web_Helper
@@ -162,6 +162,9 @@
       // «Saved filters» и при нажатии «Save filter».
       getUrl: '/admin/filter/get',
       saveUrl: '/admin/filter/save',
+      // Пауза между сохранениями фильтров при добавлении по коду (мс),
+      // чтобы не слать сайту десятки запросов подряд
+      saveDelay: 500,
       // Сохранённые фильтры привязаны к странице через reportId. Для
       // Extended номер взят из запроса /admin/filter/get; для paymentsupport —
       // из ссылок на файлы этой страницы (у Extended в них тот же номер,
@@ -2179,7 +2182,9 @@
         results.innerHTML = '';
         let ok = 0;
 
-        for (const row of chosen) {
+        for (const [i, row] of chosen.entries()) {
+          if (i > 0) await new Promise(resolve => setTimeout(resolve, CFG.saveDelay));
+          addBtn.textContent = `Добавляю ${i + 1} из ${chosen.length}…`;
           const f = row.filter;
           const taken = takenByReport[f.reportId] || new Set();
           let name = row.nameInp.value.trim() || f.name;
